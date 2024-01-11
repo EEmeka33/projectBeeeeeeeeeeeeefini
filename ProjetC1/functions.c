@@ -398,7 +398,7 @@ void doRoleFor1Period(HIVE* theHive){
           }
           if(selector!=100){
             CELLselector=theHive->frames[selector]->first;
-            while(CELLselector->next!=NULL && strncmp(CELLselector->type,POLLEN,10)!=0){
+            while((CELLselector->next!=NULL) && (strncmp(CELLselector->type,POLLEN,10)!=0 || CELLselector->value == 1000)){
               CELLselector=CELLselector->next;
             }
             if(strncmp(CELLselector->type,POLLEN,10)==0 && selector!=100){
@@ -1081,8 +1081,68 @@ void getOut(HIVE* theHive){
   }
 }
 
+Node* createNode(int data) {
+  Node* newNode = (Node*)malloc(sizeof(Node));
+  newNode->data = data;
+  newNode->left = NULL;
+  newNode->right = NULL;
+  return newNode;
+}
+
+Node* createBinaryTree(int depth) {
+  if (depth <= 0) {
+    return NULL;
+  }
+  int randomnumber = rand() % 100;//0=prairie, 1=forest, 2=champ de fleur,110=hive,4=nothing
+  Node* root = createNode(randomnumber);
+  root->left = createBinaryTree(depth - 1);
+  root->right = createBinaryTree(depth - 1);
+
+  return root;
+}
+
+int Findclosest2(Node* root,int deph,int maxdeph) {
+  int i=0;
+  if (deph>maxdeph) {
+    return 100;
+  }else{
+    if(root->data==2){
+      return deph;
+    }
+    if(Findclosest2(root->left,deph+1,maxdeph)!=100){
+      return Findclosest2(root->left,deph+1,maxdeph);
+    }
+    if(Findclosest2(root->right,deph+1,maxdeph)!=100){
+      return Findclosest2(root->right,deph+1,maxdeph);
+    }
+    
+    
+  }
+}
+int findpath(Node* root,int actualdeph,int maxdeph,char path[100]){
+  if(actualdeph<=maxdeph){
+    if(root->data==2){
+      return actualdeph;
+    }
+    if(findpath(root->left,actualdeph+1,maxdeph,path)!=100){
+      path[actualdeph]='l';
+      return actualdeph;
+    }
+    if(findpath(root->right,actualdeph+1,maxdeph,path)!=100){
+      path[actualdeph]='r';
+      return actualdeph;
+    }
+    
+  }
+  return 100;
+}
+
 int affichage(HIVE* HIVE1){
   char wait;
+  int atdeph=100;
+  Node* tree;
+  char* path=malloc(sizeof(char)*100);
+  
   frameCELL* CELLalveole=malloc(sizeof(frameCELL));
   
     int randomNumber = 0;
@@ -1327,8 +1387,17 @@ int affichage(HIVE* HIVE1){
     printf("%d\n",HIVE1->frames[0]->EmptyCELL);
     printf("%d\n",HIVE1->frames[0]->DirtyCELL);
     */
-
-    
+  tree = createBinaryTree(10);//generate randomly the world ouside the hive
+  tree->data=110;
+  atdeph=100;
+  for(int i=1;i<10;i++){
+    if(Findclosest2(tree,0,i)!=100){
+      if(atdeph>Findclosest2(tree,0,i)){
+        atdeph=Findclosest2(tree,0,i);
+      }
+    }
+  }
+  findpath(tree,0,atdeph,path);//the tab path is filled with the path to the closest flowers from the hive
 
     printf("\n");
     HIVE1->deathToday=0;

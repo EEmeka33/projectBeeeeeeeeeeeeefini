@@ -20,7 +20,13 @@ typedef struct HIVE HIVE;
 typedef struct FRAME FRAME;
 typedef struct OutsideBee OutsideBee;
 typedef struct frameCELL frameCELL;
+typedef struct Node Node;
 
+struct Node {
+  int data;
+  struct Node* left;
+  struct Node* right;
+};
 
 struct BEE {
   unsigned long int id;
@@ -149,3 +155,7 @@ void beesEat(HIVE* theHive);
 void nextDay(HIVE* theHive);
 void getOut(HIVE* theHive);
 int affichage(HIVE* HIVE1);
+Node* createNode(int data);
+Node* createBinaryTree(int depth);
+int Findclosest2(Node* root,int deph,int maxdeph);
+int findpath(Node* root,int actualdeph,int maxdeph,char path[100]);
